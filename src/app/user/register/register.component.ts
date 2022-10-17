@@ -2,6 +2,7 @@ import { Component } from '@angular/core'
 import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { AuthService } from 'src/app/services/auth.service'
 import IUser from 'src/app/models/user.model'
+import { RegisterValidators } from '../validators/register-validators'
 
 @Component({
   selector: 'app-register',
@@ -25,24 +26,24 @@ export class RegisterComponent {
     Validators.required,
     Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm),
   ])
-  confirmPassword = new FormControl<string>('', [
-    Validators.required,
-    // Validators.pattern(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[a-zA-Z]).{8,}$/gm),
-  ])
+  confirmPassword = new FormControl<string>('', [Validators.required])
   phoneNumber = new FormControl<string>('', [
     Validators.required,
     Validators.minLength(15),
     Validators.maxLength(15),
   ])
 
-  registerForm: FormGroup = this.fb.group({
-    name: this.name,
-    email: this.email,
-    age: this.age,
-    password: this.password,
-    confirmPassword: this.confirmPassword,
-    phoneNumber: this.phoneNumber,
-  })
+  registerForm = new FormGroup(
+    {
+      name: this.name,
+      email: this.email,
+      age: this.age,
+      password: this.password,
+      confirmPassword: this.confirmPassword,
+      phoneNumber: this.phoneNumber,
+    },
+    [RegisterValidators.match('password', 'confirmPassword')]
+  )
 
   showAlert = false
   alertColor = 'blue'

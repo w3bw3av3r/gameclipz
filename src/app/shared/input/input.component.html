@@ -19,6 +19,9 @@
   </p>
   <p *ngIf="control.errors?.min" class="text-red-400 text-sm">Value too low</p>
   <p *ngIf="control.errors?.max" class="text-red-400 text-sm">Value too high</p>
+  <p *ngIf="control.errors?.noMatch" class="text-red-400 text-sm">
+    Passwords do not match
+  </p>
   <p *ngIf="control.errors?.minlength" class="text-red-400 text-sm">
     The value you inputted is
     {{ control.errors?.minlength.actualLength }} characters long. It must at
