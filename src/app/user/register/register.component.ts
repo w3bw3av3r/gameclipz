@@ -3,6 +3,7 @@ import { FormGroup, FormBuilder, Validators, FormControl } from '@angular/forms'
 import { AuthService } from 'src/app/services/auth.service'
 import IUser from 'src/app/models/user.model'
 import { RegisterValidators } from '../validators/register-validators'
+import { EmailTaken } from '../validators/email-taken'
 
 @Component({
   selector: 'app-register',
@@ -10,13 +11,21 @@ import { RegisterValidators } from '../validators/register-validators'
   styleUrls: ['./register.component.scss'],
 })
 export class RegisterComponent {
-  constructor(private fb: FormBuilder, private auth: AuthService) {}
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private emailTaken: EmailTaken
+  ) {}
 
   name = new FormControl<string>('', [
     Validators.required,
     Validators.minLength(3),
   ])
-  email = new FormControl<string>('', [Validators.required, Validators.email])
+  email = new FormControl<string>(
+    '',
+    [Validators.required, Validators.email],
+    [this.emailTaken.validate]
+  )
   age = new FormControl<number | null>(null, [
     Validators.required,
     Validators.min(18),
