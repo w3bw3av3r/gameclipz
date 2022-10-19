@@ -12,6 +12,7 @@ import IClip from 'src/app/models/clip.model'
 export class ManageComponent implements OnInit {
   videoOrder = '1'
   clipz: IClip[] = []
+  activeClip: IClip | null = null
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -34,6 +35,14 @@ export class ManageComponent implements OnInit {
     })
   }
 
+  update(event: IClip) {
+    this.clipz.forEach((el, index) => {
+      if (el.docID === event.docID) {
+        this.clipz[index].title = event.title
+      }
+    })
+  }
+
   sort(event: Event) {
     const { value } = event.target as HTMLSelectElement
     this.router.navigate([], {
@@ -46,6 +55,7 @@ export class ManageComponent implements OnInit {
 
   openModal($event: Event, clip: IClip) {
     $event.preventDefault()
+    this.activeClip = clip
     this.modal.toggleModal('editClip')
   }
 }
