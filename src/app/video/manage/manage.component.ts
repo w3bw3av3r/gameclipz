@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { Router, ActivatedRoute, Params } from '@angular/router'
+import { BehaviorSubject } from 'rxjs'
 import { ClipService } from 'src/app/services/clip.service'
 import { ModalService } from 'src/app/services/modal.service'
 import IClip from 'src/app/models/clip.model'
@@ -13,18 +14,22 @@ export class ManageComponent implements OnInit {
   videoOrder = '1'
   clipz: IClip[] = []
   activeClip: IClip | null = null
+  sortClip$: BehaviorSubject<string>
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private clipService: ClipService,
     private modal: ModalService
-  ) {}
+  ) {
+    this.sortClip$ = new BehaviorSubject(this.videoOrder)
+  }
 
   ngOnInit(): void {
     this.route.queryParams.subscribe((params: Params) => {
       this.videoOrder = params.sort === '2' ? params.sort : '1'
+      this.sortClip$.next(this.videoOrder)
     })
-    this.clipService.getUserClipz().subscribe((docs) => {
+    this.clipService.getUserClipz(this.sortClip$).subscribe((docs) => {
       this.clipz = []
       docs.forEach((doc) => {
         this.clipz.push({
@@ -40,6 +45,14 @@ export class ManageComponent implements OnInit {
       if (el.docID === event.docID) {
         this.clipz[index].title = event.title
       }
+    })
+  }
+
+  deleteClip($event: Event, clip: IClip) {
+    $event.preventDefault()
+    this.clipService.deleteClip(clip)
+    this.clipz.forEach((el, index) => {
+      if (el.docID === clip.docID) this.clipz.splice(index, 1)
     })
   }
 
