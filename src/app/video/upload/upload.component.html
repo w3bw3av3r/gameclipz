@@ -3,73 +3,91 @@
   <div class="rounded relative flex flex-col">
     <div class="font-bold mb-6">Upload Video</div>
 
-    <ng-container *ngIf="!nextStep; else uploadFormContainer">
-      <!-- Upload Dropbox -->
-      <div
-        app-event-blocker
-        (dragover)="isDragOver = true"
-        (dragenter)="isDragOver = true"
-        (dragend)="isDragOver = false"
-        (dragleave)="isDragOver = false"
-        (mouseleave)="isDragOver = false"
-        (drop)="storeFile($event)"
-        [ngClass]="{
-          'bg-indigo-400 border-indigo-400 border-solid': isDragOver
-        }"
-        class="w-full px-10 py-40 rounded text-center cursor-pointer border-4 border-dashed border-gray-400 transition duration-500 hover:text-white hover:bg-indigo-400 hover:border-indigo-700 hover:border-4 text-xl"
+    <ng-container>
+      <span
+        *ngIf="!ffmpegService.isReady; else uploadEditorContainer"
+        class="material-icons text-center text-6xl p-8 animate-spin"
       >
-        <h5>Drop your file here (mp4 only!)</h5>
-      </div>
-
-      <!-- File input -->
-      <input type="file" class="mt-4" (change)="storeFile($event)" />
+        settings
+      </span>
     </ng-container>
 
-    <!-- Video Editor -->
-    <ng-template #uploadFormContainer>
-      <app-alert *ngIf="showAlert" [color]="alertColor">
-        <p>{{ alertMessage }}</p>
-        <p *ngIf="showProgress">{{ uploadProgress | percent }}</p>
-      </app-alert>
-      <!-- Form -->
-      <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
-        <!-- Screenshots -->
-        <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div class="border-8 cursor-pointer border-green-400">
-            <img src="assets/img/1.jpg" />
-          </div>
-          <div class="border-8 cursor-pointer border-transparent">
-            <img src="assets/img/2.jpg" />
-          </div>
-          <div class="border-8 cursor-pointer border-transparent">
-            <img src="assets/img/3.jpg" />
-          </div>
-        </div>
-
-        <!-- Title -->
-        <div class="mt-4">
-          <label class="block text-xl mb-4">Title</label>
-          <app-input
-            [control]="title"
-            [placeholder]="'Enter title'"
-          ></app-input>
-        </div>
-
-        <div class="mt-4 text-right">
-          <button
-            [disabled]="uploadForm.invalid || isSubmitting"
-            [ngClass]="{
-              'opacity-50': isSubmitting,
-              'hover:bg-indigo-700': !isSubmitting
-            }"
-            type="submit"
-            class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm rounded-md text-white bg-indigo-600 focus:outline-none disabled:cursor-not-allowed"
+    <ng-template #uploadEditorContainer>
+      <ng-container *ngIf="!nextStep; else uploadFormContainer">
+        <!-- Upload Dropbox -->
+        <div
+          app-event-blocker
+          (dragover)="isDragOver = true"
+          (dragenter)="isDragOver = true"
+          (dragend)="isDragOver = false"
+          (dragleave)="isDragOver = false"
+          (mouseleave)="isDragOver = false"
+          (drop)="storeFile($event)"
+          [ngClass]="{
+            'bg-indigo-400 border-indigo-400 border-solid': isDragOver
+          }"
+          class="w-full px-10 py-40 rounded text-center cursor-pointer border-4 border-dashed border-gray-400 transition duration-500 hover:text-white hover:bg-indigo-400 hover:border-indigo-700 hover:border-4 text-xl"
+        >
+          <h5>Drop your file here (mp4 only!)</h5>
+          <span
+            *ngIf="ffmpegService.isRunning"
+            class="material-icons text-center text-6xl animate-spin p-8"
+            >autorenew</span
           >
-            Publish
-          </button>
         </div>
-      </form>
+
+        <!-- File input -->
+        <input type="file" class="mt-4" (change)="storeFile($event)" />
+      </ng-container>
+
+      <!-- Video Editor -->
+      <ng-template #uploadFormContainer>
+        <app-alert *ngIf="showAlert" [color]="alertColor">
+          <p>{{ alertMessage }}</p>
+          <p *ngIf="showProgress">{{ uploadProgress | percent }}</p>
+        </app-alert>
+        <!-- Form -->
+        <form [formGroup]="uploadForm" (ngSubmit)="uploadFile()">
+          <!-- Screenshots -->
+          <h2 class="mb-4 text-xl">Select a Thumbnail</h2>
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div
+              *ngFor="let screenshot of screenShots; let i = index"
+              (click)="selectedScreenShot = screenshot"
+              class="border-8 cursor-pointer"
+              [ngClass]="{
+                'border-green-400': screenshot === selectedScreenShot,
+                'border-transparent': screenshot !== selectedScreenShot
+              }"
+            >
+              <img [src]="screenshot | safeURL" />
+            </div>
+          </div>
+
+          <!-- Title -->
+          <div class="mt-4">
+            <label class="block text-xl mb-4">Title</label>
+            <app-input
+              [control]="title"
+              [placeholder]="'Enter title'"
+            ></app-input>
+          </div>
+
+          <div class="mt-4 text-right">
+            <button
+              [disabled]="uploadForm.invalid || isSubmitting"
+              [ngClass]="{
+                'opacity-50': isSubmitting,
+                'hover:bg-indigo-700': !isSubmitting
+              }"
+              type="submit"
+              class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm rounded-md text-white bg-indigo-600 focus:outline-none disabled:cursor-not-allowed"
+            >
+              Publish
+            </button>
+          </div>
+        </form>
+      </ng-template>
     </ng-template>
   </div>
 </section>
